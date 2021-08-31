@@ -1,0 +1,6 @@
+id=neternels-modules
+name=NetErnels kernel modules.
+version=v1.0
+versionCode=2004
+author=neternels
+description=NetErnels kernel modules for NetHunter usage with aircrack-ng drivers.
