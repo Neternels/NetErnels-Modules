@@ -10,8 +10,7 @@
 # 1. Place your files into system folder (delete the placeholder file)
 # 2. Fill in your module's info into module.prop
 # 3. Configure and implement callbacks in this file
-# 4. If you need boot scripts, add them into common/post-fs-data.sh or common/service.sh
-# 5. Add your additional or modified system properties into common/system.prop
+# 4. If you need boot scripts, put the files in default path then look into POSTFSDATA/LATESTARTSERVICE flags.
 #
 ##########################################################################################
 
