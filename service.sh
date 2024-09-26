@@ -7,5 +7,7 @@
 MODDIR=${0%/*}
 
 # This script will be executed in late_start service mode
-# *. Is just a blank name, you can name it after feeding the modules.
-# insmod $MODDIR/system/lib/modules/*.ko
+# Uncomment the following lines to automatically insert each module after they are fed into the system.
+# for module in $MODDIR/system/lib/modules/*.ko; do
+#      insmod "$module"
+# done
