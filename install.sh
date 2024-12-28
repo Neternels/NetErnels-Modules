@@ -133,7 +133,42 @@ on_install() {
   # The following is the default implementation: extract $ZIPFILE/system to $MODPATH
   # Extend/change the logic to whatever you want
   ui_print "- Extracting module files"
-  unzip -o "$ZIPFILE" 'system/*' -d $MODPATH >&2
+  unzip -o "$ZIPFILE" 'system/*' -d "$MODPATH" >&2 || abort "Failed to extract module files."
+
+  # Only copy firmware files to /vendor/firmware for Android 14 or higher
+  if [ "$API" -ge 34 ]; then
+    ui_print "- Android version is higher than 13. Copying firmware files to /vendor/firmware"
+    if [ -d "$MODPATH/system/etc/firmware" ]; then
+      mkdir -p "$MODPATH/vendor/firmware" && cp -rf "$MODPATH/system/etc/firmware/"* "$MODPATH/vendor/firmware/" || abort "Failed to create /vendor/firmware directory."
+
+      # Check for firmware files in /vendor/firmware
+      if [ -d "$MODPATH/vendor/firmware" ]; then
+        ui_print "- Firmware files copied successfully to /vendor/firmware."
+      else
+        abort "Failed to copy firmware files to /vendor/firmware."
+      fi
+    fi
+  fi
+
+  # Standalone check for /system/etc/firmware
+  if [ -d "$MODPATH/system/etc/firmware" ]; then
+    ui_print "- Firmware files copied successfully to /system/etc/firmware."
+  else
+    abort "Failed to copy firmware files to /system/etc/firmware."
+  fi
+
+  # Check for hid-keyboard script in /system/bin
+  if [ -f "$MODPATH/system/bin/hid-keyboard" ]; then
+    ui_print "- hid-keyboard script copied successfully."
+  else
+    abort "Failed to copy hid-keyboard script."
+  fi
+
+  # Check if .ko files exist in the extracted ZIP before attempting any operation on them
+  if [ -d "$MODPATH/system/lib/modules" ] && ls "$MODPATH/system/lib/modules"/*.ko 1> /dev/null 2>&1; then
+    # If .ko files exist in the ZIP, copy them and display success message
+    ui_print "- Kernel module(s) copied successfully to /system/lib/modules."
+  fi
 }
 
 # Only some special files require specific permissions
@@ -149,6 +184,8 @@ set_permissions() {
   # set_perm  $MODPATH/system/bin/app_process32   0     2000    0755      u:object_r:zygote_exec:s0
   # set_perm  $MODPATH/system/bin/dex2oat         0     2000    0755      u:object_r:dex2oat_exec:s0
   # set_perm  $MODPATH/system/lib/libart.so       0     0       0644
+  # Set permissions for the hid-keyboard script
+  set_perm $MODPATH/system/bin/hid-keyboard 0 0 0755
 }
 
 # You can add more functions to assist your custom script code
